@@ -88,7 +88,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	// shim for using process in browser
-
 	var process = module.exports = {};
 
 	// cached from whatever global is present so that test runners that stub it
@@ -100,21 +99,63 @@ return /******/ (function(modules) { // webpackBootstrap
 	var cachedClearTimeout;
 
 	(function () {
-	  try {
-	    cachedSetTimeout = setTimeout;
-	  } catch (e) {
-	    cachedSetTimeout = function () {
-	      throw new Error('setTimeout is not defined');
+	    try {
+	        cachedSetTimeout = setTimeout;
+	    } catch (e) {
+	        cachedSetTimeout = function () {
+	            throw new Error('setTimeout is not defined');
+	        }
 	    }
-	  }
-	  try {
-	    cachedClearTimeout = clearTimeout;
-	  } catch (e) {
-	    cachedClearTimeout = function () {
-	      throw new Error('clearTimeout is not defined');
+	    try {
+	        cachedClearTimeout = clearTimeout;
+	    } catch (e) {
+	        cachedClearTimeout = function () {
+	            throw new Error('clearTimeout is not defined');
+	        }
 	    }
-	  }
 	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+
+
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+
+
+
+	}
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -139,7 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = cachedSetTimeout.call(null, cleanUpNextTick);
+	    var timeout = runTimeout(cleanUpNextTick);
 	    draining = true;
 
 	    var len = queue.length;
@@ -156,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    cachedClearTimeout.call(null, timeout);
+	    runClearTimeout(timeout);
 	}
 
 	process.nextTick = function (fun) {
@@ -168,7 +209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        cachedSetTimeout.call(null, drainQueue, 0);
+	        runTimeout(drainQueue);
 	    }
 	};
 
@@ -1447,7 +1488,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    (0, _widgetHelpers.notify)(this.props.onKeyDown, [e]);
 
 	    var change = function change(item, fromList) {
-	      if (!item) return;
+	      if (item == null) return;
 	      fromList ? _this3.handleSelect(item) : _this3.change(item);
 	    };
 
@@ -2669,7 +2710,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    messages: _react2.default.PropTypes.shape({
 	      emptyList: _propTypes2.default.message
-	    })
+	    }),
+
+	    scrollToTop: _react2.default.PropTypes.bool
 	  },
 
 	  getDefaultProps: function getDefaultProps() {
@@ -2680,11 +2723,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      data: [],
 	      messages: {
 	        emptyList: 'There are no items in this list'
-	      }
+	      },
+	      scrollToTop: false
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
-	    this.move();
+	    this.move(this.props.scrollToTop);
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
 	    var _props = this.props;
@@ -2765,13 +2809,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return this.props.data;
 	  },
 	  move: function move() {
+	    var scrollToTop = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
 	    var list = _compat2.default.findDOMNode(this),
 	        idx = this._data().indexOf(this.props.focused),
 	        selected = list.children[idx];
 
 	    if (!selected) return;
 
-	    (0, _widgetHelpers.notify)(this.props.onMove, [selected, list, this.props.focused]);
+	    (0, _widgetHelpers.notify)(this.props.onMove, [selected, list, this.props.focused, scrollToTop]);
 	  }
 	});
 	module.exports = exports['default'];
@@ -3727,14 +3773,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function customPropType(handler, propType, name) {
 
-	  return function (props, propName) {
+	  return function (props, propName, wrappedName) {
 
 	    if (props[propName] !== undefined) {
 	      if (!props[handler]) {
 	        return new Error('You have provided a `' + propName + '` prop to ' + '`' + name + '` without an `' + handler + '` handler. This will render a read-only field. ' + 'If the field should be mutable use `' + defaultKey(propName) + '`. Otherwise, set `' + handler + '`');
 	      }
 
-	      return propType && propType(props, propName, name);
+	      for (var _len = arguments.length, args = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+	        args[_key - 3] = arguments[_key];
+	      }
+
+	      return propType && propType.apply(undefined, [props, propName, name].concat(args));
 	    }
 	  };
 	}
@@ -3787,8 +3837,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function chain(thisArg, a, b) {
 	  return function chainedFunction() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	      args[_key] = arguments[_key];
+	    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	      args[_key2] = arguments[_key2];
 	    }
 
 	    a && a.call.apply(a, [thisArg].concat(args));
@@ -4005,6 +4055,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.default = {
 	  _scrollTo: function _scrollTo(selected, list, focused) {
+	    var scrollToTop = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
 	    var state = this._scrollState || (this._scrollState = {}),
 	        handler = this.props.onMove,
 	        lastVisible = state.visible,
@@ -4021,7 +4073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (shown || state.visible && changed) {
 	      if (handler) handler(selected, list, focused);else {
 	        state.scrollCancel && state.scrollCancel();
-	        state.scrollCancel = (0, _scrollTo3.default)(selected, list);
+	        state.scrollCancel = (0, _scrollTo3.default)(selected, list, scrollToTop);
 	      }
 	    }
 	  }
@@ -5134,7 +5186,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  initialView: _react2.default.PropTypes.oneOf(VIEW_OPTIONS),
 
 	  finalView: function finalView(props, propName, componentName) {
-	    var err = _react2.default.PropTypes.oneOf(VIEW_OPTIONS)(props, propName, componentName);
+	    for (var _len = arguments.length, args = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+	      args[_key - 3] = arguments[_key];
+	    }
+
+	    var err = _react2.default.PropTypes.oneOf(VIEW_OPTIONS).apply(undefined, [props, propName, componentName].concat(args));
 
 	    if (err) return err;
 	    if (VIEW_OPTIONS.indexOf(props[propName]) < VIEW_OPTIONS.indexOf(props.initialView)) return new Error(('The `' + propName + '` prop: `' + props[propName] + '` cannot be \'lower\' than the `initialView`\n        prop. This creates a range that cannot be rendered.').replace(/\n\t/g, ''));
@@ -7509,8 +7565,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }),
 	      this.renderInput(inputID, owns.trim()),
 	      this.renderButtons(messages),
-	      shouldRenderList && this.renderTimeList(timeListID, inputID),
-	      shouldRenderList && this.renderCalendar(dateListID, inputID)
+	      shouldRenderList && time && this.renderTimeList(timeListID, inputID),
+	      shouldRenderList && calendar && this.renderCalendar(dateListID, inputID)
 	    );
 	  },
 	  handleChange: function handleChange(date, str, constrain) {
@@ -7715,7 +7771,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onSelect: _react2.default.PropTypes.func,
 	    preserveDate: _react2.default.PropTypes.bool,
 	    culture: _react2.default.PropTypes.string,
-	    delay: _react2.default.PropTypes.number
+	    delay: _react2.default.PropTypes.number,
+	    preSelectedItem: _react2.default.PropTypes.instanceOf(Date)
 	  },
 
 	  mixins: [__webpack_require__(52)],
@@ -7728,12 +7785,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      max: new Date(2099, 11, 31),
 	      preserveDate: true,
 	      delay: 300,
-	      ariaActiveDescendantKey: 'timelist'
+	      ariaActiveDescendantKey: 'timelist',
+	      preSelectedItem: null
 	    };
 	  },
 	  getInitialState: function getInitialState() {
 	    var data = this._dates(this.props),
-	        focusedItem = this._closestDate(data, this.props.value);
+	        focusedItem = this._closestDate(data, this.props.value ? this.props.value : this.props.preSelectedItem);
 
 	    return {
 	      focusedItem: focusedItem || data[0],
@@ -7771,7 +7829,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      valueField: 'date',
 	      selected: date,
 	      onSelect: onSelect,
-	      focused: this.state.focusedItem
+	      focused: this.state.focusedItem,
+	      scrollToTop: !!this.props.preSelectedItem
 	    }));
 	  },
 	  _closestDate: function _closestDate(times, date) {
