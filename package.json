@@ -65,7 +65,7 @@
   "dependencies": {
     "classnames": "^2.1.2",
     "date-arithmetic": "^3.0.0",
-    "dom-helpers": "^2.2.4",
+    "dom-helpers": "https://github.com/maps82/dom-helpers/tarball/bd60f13aad2575f83cbb643087883d2637f1cca4",
     "invariant": "^2.1.0",
     "loose-envify": "^1.2.0",
     "uncontrollable": "^4.0.0",
