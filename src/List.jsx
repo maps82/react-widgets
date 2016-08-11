@@ -37,7 +37,9 @@ export default React.createClass({
 
     messages:      React.PropTypes.shape({
       emptyList:   CustomPropTypes.message
-    })
+    }),
+
+    scrollToTop:     React.PropTypes.bool
   },
 
 
@@ -49,12 +51,13 @@ export default React.createClass({
       data: [],
       messages: {
         emptyList:   'There are no items in this list'
-      }
+      },
+      scrollToTop: false
     }
   },
 
   componentDidMount(){
-    this.move()
+    this.move(this.props.scrollToTop)
   },
 
   componentDidUpdate(){
@@ -131,14 +134,14 @@ export default React.createClass({
     return this.props.data
   },
 
-  move(){
+  move(scrollToTop = false){
     var list = compat.findDOMNode(this)
       , idx  = this._data().indexOf(this.props.focused)
       , selected = list.children[idx];
 
     if( !selected ) return
 
-    notify(this.props.onMove, [ selected, list, this.props.focused ])
+    notify(this.props.onMove, [ selected, list, this.props.focused, scrollToTop ])
   }
 
 })

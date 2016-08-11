@@ -2,7 +2,7 @@ import scrollTo from 'dom-helpers/util/scrollTo';
 
 export default {
 
-  _scrollTo(selected, list, focused) {
+  _scrollTo(selected, list, focused, scrollToTop = false) {
     var state   = this._scrollState || (this._scrollState = {})
       , handler = this.props.onMove
       , lastVisible = state.visible
@@ -20,7 +20,7 @@ export default {
         handler(selected, list, focused)
       else {
         state.scrollCancel && state.scrollCancel()
-        state.scrollCancel = scrollTo(selected, list)
+        state.scrollCancel = scrollTo(selected, list, scrollToTop)
       }
     }
   }

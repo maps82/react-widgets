@@ -24,7 +24,8 @@ export default React.createClass({
     onSelect: React.PropTypes.func,
     preserveDate: React.PropTypes.bool,
     culture: React.PropTypes.string,
-    delay: React.PropTypes.number
+    delay: React.PropTypes.number,
+    preSelectedItem: React.PropTypes.instanceOf(Date)
   },
 
   mixins: [
@@ -39,13 +40,14 @@ export default React.createClass({
       max: new Date(2099, 11, 31),
       preserveDate: true,
       delay: 300,
-      ariaActiveDescendantKey: 'timelist'
+      ariaActiveDescendantKey: 'timelist',
+      preSelectedItem: null
     }
   },
 
   getInitialState(){
     var data = this._dates(this.props)
-      , focusedItem = this._closestDate(data, this.props.value);
+      , focusedItem = this._closestDate(data, this.props.value ? this.props.value : this.props.preSelectedItem);
 
     return {
       focusedItem: focusedItem || data[0],
@@ -86,6 +88,7 @@ export default React.createClass({
         selected={date}
         onSelect={onSelect}
         focused={this.state.focusedItem}
+        scrollToTop={!!this.props.preSelectedItem}
       />
     )
   },
