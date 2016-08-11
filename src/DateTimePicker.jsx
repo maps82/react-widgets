@@ -343,10 +343,10 @@ var DateTimePicker = React.createClass({
 
         {this.renderButtons(messages)}
 
-        {shouldRenderList &&
+        {shouldRenderList && time &&
           this.renderTimeList(timeListID, inputID)
         }
-        {shouldRenderList &&
+        {shouldRenderList && calendar &&
           this.renderCalendar(dateListID, inputID)
         }
       </Widget>
