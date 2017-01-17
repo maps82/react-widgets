@@ -81,6 +81,18 @@ class CalendarViewCell extends React.Component {
       return <td className='rw-empty-cell' role='presentation'>&nbsp;</td>
     }
 
+    let cellClass = '';
+    if (id.indexOf('decade') > -1) {
+      cellClass = 'year';
+    }
+    else if (id.indexOf('year') > -1) {
+      cellClass = 'month';
+    }
+    else if (id.indexOf('month') > -1) {
+      cellClass = 'day';
+    }
+
+
     return (
       <td
         role='gridcell'
@@ -89,6 +101,7 @@ class CalendarViewCell extends React.Component {
         aria-label={label}
         aria-readonly={disabled}
         aria-selected={this.isSelected()}
+        className={'td-' + cellClass}
       >
         <span
           aria-labelledby={id}
