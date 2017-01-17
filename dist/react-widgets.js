@@ -1,4 +1,4 @@
-/*! (c) 2016 Jason Quense | https://github.com/jquense/react-widgets/blob/master/License.txt */
+/*! (c) 2017 Jason Quense | https://github.com/jquense/react-widgets/blob/master/License.txt */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("react"), require("react-dom"));
@@ -2390,8 +2390,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    if (opening) this.open();else if (closing) this.close();else if (open) {
-	      var height = this.height();
-	      if (height !== this.state.height) this.setState({ height: height });
+	      // this.height() returns a floating point number with the desired height
+	      // for this popup. Because of potential rounding errors in floating point
+	      // aritmetic we must allow an error margin when comparing to the current
+	      // state, otherwise we can end up in an infinite loop where the height
+	      // is never exactly equal to our target value.
+	      var height = this.height(),
+	          diff = Math.abs(height - this.state.height);
+	      if (isNaN(diff) || diff > 0.1) this.setState({ height: height });
 	    }
 	  },
 	  render: function render() {
@@ -5984,6 +5990,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      );
 	    }
 
+	    var cellClass = '';
+	    if (id.indexOf('decade') > -1) {
+	      cellClass = 'year';
+	    } else if (id.indexOf('year') > -1) {
+	      cellClass = 'month';
+	    } else if (id.indexOf('month') > -1) {
+	      cellClass = 'day';
+	    }
+
 	    return _react2.default.createElement(
 	      'td',
 	      {
@@ -5992,7 +6007,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        title: label,
 	        'aria-label': label,
 	        'aria-readonly': disabled,
-	        'aria-selected': this.isSelected()
+	        'aria-selected': this.isSelected(),
+	        className: 'td-' + cellClass
 	      },
 	      _react2.default.createElement(
 	        'span',
@@ -6158,7 +6174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      case DAY:
 	        return dates.date(date, dates.date(date) + num)
 	      case WEEK:
-	        return dates.date(date, dates.date(date) + (7 * num))
+	        return dates.date(date, dates.date(date) + (7 * num)) 
 	      case MONTH:
 	        return monthMath(date, num)
 	      case DECADE:
@@ -6195,13 +6211,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	          date = dates.milliseconds(date, 0);
 	    }
 
-	    if (unit === DECADE)
+	    if (unit === DECADE) 
 	      date = dates.subtract(date, dates.year(date) % 10, 'year')
-
-	    if (unit === CENTURY)
+	    
+	    if (unit === CENTURY) 
 	      date = dates.subtract(date, dates.year(date) % 100, 'year')
 
-	    if (unit === WEEK)
+	    if (unit === WEEK) 
 	      date = dates.weekday(date, 0, firstOfWeek);
 
 	    return date
@@ -6230,7 +6246,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  max: function(){
 	    return new Date(Math.max.apply(Math, arguments))
 	  },
-
+	  
 	  inRange: function(day, min, max, unit){
 	    unit = unit || 'day'
 
@@ -6248,13 +6264,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  year:           createAccessor('FullYear'),
 
 	  decade: function (date, val) {
-	    return val === undefined
+	    return val === undefined 
 	      ? dates.year(dates.startOf(date, DECADE))
 	      : dates.add(date, val + 10, YEAR);
 	  },
 
 	  century: function (date, val) {
-	    return val === undefined
+	    return val === undefined 
 	      ? dates.year(dates.startOf(date, CENTURY))
 	      : dates.add(date, val + 100, YEAR);
 	  },
@@ -6262,8 +6278,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  weekday: function (date, val, firstDay) {
 	      var weekday = (dates.day(date) + 7 - (firstDay || 0) ) % 7;
 
-	      return val === undefined
-	        ? weekday
+	      return val === undefined 
+	        ? weekday 
 	        : dates.add(date, val - weekday, DAY);
 	  },
 
@@ -6329,7 +6345,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    date = dates.month(date, newMonth)
 
 	    while (newMonth < 0 ) newMonth = 12 + newMonth
-
+	      
 	    //month rollover
 	    if ( dates.month(date) !== ( newMonth % 12))
 	      date = dates.date(date, 0) //move to last of month
@@ -7771,8 +7787,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onSelect: _react2.default.PropTypes.func,
 	    preserveDate: _react2.default.PropTypes.bool,
 	    culture: _react2.default.PropTypes.string,
-	    delay: _react2.default.PropTypes.number,
-	    preSelectedItem: _react2.default.PropTypes.instanceOf(Date)
+	    delay: _react2.default.PropTypes.number
 	  },
 
 	  mixins: [__webpack_require__(52)],
@@ -7785,13 +7800,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      max: new Date(2099, 11, 31),
 	      preserveDate: true,
 	      delay: 300,
-	      ariaActiveDescendantKey: 'timelist',
-	      preSelectedItem: null
+	      ariaActiveDescendantKey: 'timelist'
 	    };
 	  },
 	  getInitialState: function getInitialState() {
 	    var data = this._dates(this.props),
-	        focusedItem = this._closestDate(data, this.props.value ? this.props.value : this.props.preSelectedItem);
+	        focusedItem = this._closestDate(data, this.props.value || this.props.currentDate);
 
 	    return {
 	      focusedItem: focusedItem || data[0],
@@ -7800,7 +7814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    var data = this._dates(nextProps),
-	        focusedItem = this._closestDate(data, nextProps.value),
+	        focusedItem = this._closestDate(data, nextProps.value || this.props.currentDate),
 	        valChanged = !_dates3.default.eq(nextProps.value, this.props.value, 'minutes'),
 	        minChanged = !_dates3.default.eq(nextProps.min, this.props.min, 'minutes'),
 	        maxChanged = !_dates3.default.eq(nextProps.max, this.props.max, 'minutes'),
@@ -7830,7 +7844,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      selected: date,
 	      onSelect: onSelect,
 	      focused: this.state.focusedItem,
-	      scrollToTop: !!this.props.preSelectedItem
+	      scrollToTop: !!this.props.currentDate
 	    }));
 	  },
 	  _closestDate: function _closestDate(times, date) {
@@ -8288,7 +8302,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          icon: 'caret-down',
 	          onClick: this.handleFocus,
 	          label: this.props.messages.decrement,
-	          active: this.state.active === _constants.directions.UP,
+	          active: this.state.active === _constants.directions.DOWN,
 	          disabled: val === this.props.min || this.props.disabled,
 	          onMouseUp: function onMouseUp() {
 	            return _this.handleMouseUp(_constants.directions.DOWN);
@@ -9122,6 +9136,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	  handleKeyDown: function handleKeyDown(e) {
 	    var key = e.key;
+	    var keyCode = e.keyCode;
 	    var altKey = e.altKey;
 	    var ctrlKey = e.ctrlKey;
 	    var noSearch = !this.props.searchTerm && !this._deletingText;
@@ -9158,7 +9173,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else if (key === 'Home') {
 	      e.preventDefault();
 	      if (isOpen) this.setState(_extends({ focusedItem: list.first() }, nullTag));else tagList && this.setState({ focusedTag: tagList.first() });
-	    } else if (isOpen && key === 'Enter') {
+	    } else if (isOpen && keyCode === 13) {
+	      // using keyCode to ignore enter for japanese IME
 	      e.preventDefault();
 	      ctrlKey && this.props.onCreate || focusedItem === null ? this.handleCreate(this.props.searchTerm) : this.handleSelect(this.state.focusedItem);
 	    } else if (key === 'Escape') isOpen ? this.close() : tagList && this.setState(nullTag);else if (noSearch && key === 'ArrowLeft') tagList && this.setState({ focusedTag: tagList.prev(focusedTag) });else if (noSearch && key === 'ArrowRight') tagList && this.setState({ focusedTag: tagList.next(focusedTag) });else if (noSearch && key === 'Delete') tagList && tagList.remove(focusedTag);else if (noSearch && key === 'Backspace') tagList && tagList.removeNext();
