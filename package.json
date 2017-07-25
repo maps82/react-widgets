@@ -1,6 +1,6 @@
 {
   "name": "react-widgets",
-  "version": "3.4.5",
+  "version": "3.4.8",
   "description": "An à la carte set of polished, extensible, and accessible inputs built for React",
   "main": "lib/index.js",
   "author": {
@@ -64,16 +64,18 @@
   },
   "dependencies": {
     "classnames": "^2.1.2",
+    "create-react-class": "^15.5.3",
     "date-arithmetic": "^3.0.0",
     "dom-helpers": "https://github.com/maps82/dom-helpers/tarball/bd60f13aad2575f83cbb643087883d2637f1cca4",
     "invariant": "^2.1.0",
     "loose-envify": "^1.2.0",
+    "prop-types": "^15.5.0",
     "uncontrollable": "^4.0.0",
     "warning": "^2.0.0"
   },
   "optionalDependencies": {
-    "format-number-with-string": "0.0.2",
-    "deconstruct-number-format": "0.0.1"
+    "deconstruct-number-format": "0.0.1",
+    "format-number-with-string": "0.0.2"
   },
   "devDependencies": {
     "@monastic.panic/component-playground": "^2.0.0",
@@ -121,6 +123,7 @@
     "prismjs": "^1.2.0",
     "raw-loader": "^0.5.1",
     "react": "^15.2.0",
+    "react-addons-test-utils": "^15.5.1",
     "react-bootstrap": "^0.29.0-0",
     "react-dom": "^15.2.0",
     "react-router": "2.0.1",
@@ -130,7 +133,6 @@
     "sinon": "^1.17.2",
     "style-loader": "^0.13.1",
     "teaspoon": "^6.4.1",
-    "uncontrollable": "^3.2.3",
     "url-loader": "^0.5.5",
     "webpack": "^1.10.5",
     "webpack-dev-server": "^1.10.1",

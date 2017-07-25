@@ -1,5 +1,7 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 import dates from './util/dates';
 import List from './List';
 import { date as dateLocalizer } from './util/localizers';
@@ -8,23 +10,23 @@ import _ from './util/_';
 
 var format = props => dateLocalizer.getFormat('time', props.format)
 
-export default React.createClass({
+export default createReactClass({
 
   displayName: 'TimeList',
 
   propTypes: {
-    value: React.PropTypes.instanceOf(Date),
-    step: React.PropTypes.number,
-    min: React.PropTypes.instanceOf(Date),
-    max: React.PropTypes.instanceOf(Date),
-    currentDate: React.PropTypes.instanceOf(Date),
+    value: PropTypes.instanceOf(Date),
+    step: PropTypes.number,
+    min: PropTypes.instanceOf(Date),
+    max: PropTypes.instanceOf(Date),
+    currentDate: PropTypes.instanceOf(Date),
 
     itemComponent: CustomPropTypes.elementType,
     format: CustomPropTypes.dateFormat,
-    onSelect: React.PropTypes.func,
-    preserveDate: React.PropTypes.bool,
-    culture: React.PropTypes.string,
-    delay: React.PropTypes.number
+    onSelect: PropTypes.func,
+    preserveDate: PropTypes.bool,
+    culture: PropTypes.string,
+    delay: PropTypes.number
   },
 
   mixins: [
@@ -53,6 +55,14 @@ export default React.createClass({
     }
   },
 
+  componentDidMount() {
+    this._mounted = true;
+  },
+
+  componentWillUnmount() {
+    this._mounted = false;
+  },
+
   componentWillReceiveProps(nextProps) {
     var data = this._dates(nextProps)
       , focusedItem = this._closestDate(data, nextProps.value || this.props.currentDate)
@@ -71,7 +81,7 @@ export default React.createClass({
   },
 
   render(){
-    let { value, onSelect } = this.props;
+    let { value, onSelect, itemComponent } = this.props;
 
     var times = this.state.dates
       , date  = this._closestDate(times, value);
@@ -86,6 +96,7 @@ export default React.createClass({
         selected={date}
         onSelect={onSelect}
         focused={this.state.focusedItem}
+        itemComponent={itemComponent}
         scrollToTop={!!this.props.currentDate}
       />
     )
@@ -187,7 +198,7 @@ export default React.createClass({
     e.preventDefault();
 
     this.search(String.fromCharCode(e.which), item => {
-      this.isMounted() &&
+      this._mounted &&
         this.setState({ focusedItem: item })
     })
   },

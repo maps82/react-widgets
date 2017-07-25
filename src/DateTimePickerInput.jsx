@@ -1,5 +1,6 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 import _  from './util/_';
 
 import Input from './Input';
@@ -7,19 +8,19 @@ import compat from './util/compat';
 import { date as dateLocalizer } from './util/localizers';
 import CustomPropTypes from './util/propTypes';
 
-export default React.createClass({
+export default createReactClass({
 
   displayName: 'DateTimePickerInput',
 
   propTypes: {
     format: CustomPropTypes.dateFormat.isRequired,
-    editing: React.PropTypes.bool,
+    editing: PropTypes.bool,
     editFormat: CustomPropTypes.dateFormat,
-    parse: React.PropTypes.func.isRequired,
+    parse: PropTypes.func.isRequired,
 
-    value: React.PropTypes.instanceOf(Date),
-    onChange: React.PropTypes.func.isRequired,
-    culture: React.PropTypes.string
+    value: PropTypes.instanceOf(Date),
+    onChange: PropTypes.func.isRequired,
+    culture: PropTypes.string
   },
 
   componentWillReceiveProps(nextProps) {
